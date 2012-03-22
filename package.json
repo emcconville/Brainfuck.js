@@ -1,0 +1,24 @@
+{
+	"name"            : "Brainfuck.js",
+	"description"     : "Another javascript interpreter of the brainfuck language.",
+	"keywords"        : ["bf","brainf*ck","esoteric","language"],
+	"version"         : "1.0.0",
+	"author"          : "E. McConville <emcconville@emcconville.com>",
+	"licenses"        : {
+		"type"          : "GNU LGPL v3",
+		"url"           : "http://www.gnu.org/licenses/lgpl-3.0.txt"
+	},
+	"repository"      : {
+		"type"          : "git",
+		"url"           : "https://github.com/emcconville/brainfuck.js.git"
+	},
+	"dependencies"    : {},
+	"devDependencies" : {
+		"tap"           : "0.2.x"
+	},
+	"engine"          : "node >=0.6",
+	"main"            : "src/Brainfuck.js",
+	"scripts"         : {
+		"test"          :  "node ./node_modules/tap/bin/tap.js test"
+	}
+}
