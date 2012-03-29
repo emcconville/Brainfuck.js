@@ -16,7 +16,7 @@
 		},
 		_options : {
 			MEMORY_SIZE      : 30000,
-			CELL_SIZE        : 255,
+			CELL_SIZE        : 256,
 			USE_SIZE_LIMITS  : true,
 			DEBUG            : false,
 			DEBUG_CALLBACK   : function(){},
@@ -34,17 +34,15 @@
 		clean : function(str) {
 			var s = '[^';
 			for(var i in this.options.LANGUAGE) {
-				var c = this.options.LANGUAGE[i].toString(16);
-				s = s.concat('\\x',c);
+				s = s.concat('\\x',this.options.LANGUAGE[i].toString(16));
 			}
 			s = s.concat(']');
-			var reg = new RegExp(s,'g');
-			return str.replace(/\/\*(.|\n|\r)*?\*\//mg,'')         // Remove classic code blocks
-			          .replace(/(\/\/|\#|\;)(.*?)$/g,'')  // Remove line comments
-			          .replace(reg,'');                      // Remove all illegal characters
+			return str.replace(/\/\*(.|\n|\r)*?\*\//mg,'')    // Remove classic code blocks
+			          .replace(/(\/\/|\#|\;)(.*?)$/g,'')      // Remove line comments
+			          .replace(new RegExp(s,'g'),'');         // Remove all other characters
 		},
 		compile : function() {
-			for(this.cusror = 0, l = this.application.length ; this.cursor < l ; this.cursor++) {
+			for(this.cursor = 0, l = this.application.length ; this.cursor < l ; this.cursor++) {
 				
 				// Check if cell exists, and initialize (set to zero) if NAN
 				this.memory[this.pointer] = isNaN(this.memory[this.pointer]) ? 0 : this.memory[this.pointer];
@@ -59,14 +57,16 @@
 				switch(this.application.charCodeAt(this.cursor)) {
 					case this.options.LANGUAGE.INCREMENT :
 						this.memory[this.pointer]++;
-						if( this.options.USE_SIZE_LIMITS && this.memory[this.pointer] > this.options.CELL_SIZE) {
-							this.memory[this.pointer] = 0;
+						if( this.options.USE_SIZE_LIMITS ) {
+							this.memory[this.pointer] %= this.options.CELL_SIZE;
 						}
 						break;
 					case this.options.LANGUAGE.DECREMENT :
 						this.memory[this.pointer]--;
-						if( this.options.USE_SIZE_LIMITS && this.memory[this.pointer] < 0 ) {
-							this.memory[this.pointer] = this.options.CELL_SIZE;
+						if( this.options.USE_SIZE_LIMITS ) {
+							this.memory[this.pointer] = this.memory[this.pointer] < 0 
+							                          ? this.options.CELL_SIZE + ( this.memory[this.pointer] % this.options.CELL_SIZE )
+							                          : this.memory[this.pointer] % this.options.CELL_SIZE ;
 						}
 						break;
 					case this.options.LANGUAGE.POINTER_NEXT :
@@ -118,19 +118,29 @@
 			return this.buffer.output;
 		},
 		init: function(application,opts) {
-			if(typeof opts == 'string') {
-				this.buffer.input = opts;
-			} else {
-				for(var _n in opts) {
-					if ( /^input/.test(_n) ) {
-						this.buffer.input = this.buffer.input.concat(opts[_n]);
-					} else {
-						this.options[_n.toUpperCase()] = opts[_n];
-					}
-				}
+			opts = !!opts ? opts : false;
+			switch(opts.constructor) {
+				case String :
+					this.buffer.input = opts;
+					break;
+				case Object :
+					this.options = this.merge(this.options,opts);
+					break;
 			}
 			this.application = this.clean(application);
 			return this;
+		}	,
+		merge: function(org,alt){
+			for(var _n in alt) {
+				if ( /^input/.test(_n) ) {
+					this.buffer.input = this.buffer.input.concat(alt[_n]);
+				} else if (alt[_n].constructor == Object) {
+					org[_n.toUpperCase()] = this.merge(org[_n.toUpperCase()],alt[_n]);
+				} else {
+					org[_n.toUpperCase()] = alt[_n];
+				}
+			}
+			return org;
 		},
 		read_input_buffer : function() {
 			var charCode = this.buffer.input.charCodeAt(0);
