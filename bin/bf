@@ -3,12 +3,26 @@
 var argv      = process.argv.slice(2),
     fs        = require('fs'),
     app       = "",
-	appFile   = false,
+    appFile   = false,
     Brainfuck = require('../lib/Brainfuck.js');
 if(argv.length < 1) {
-	process.stdout.write('\
- bf.js [options] filename\n\
- bf.js [options] -e string\n\
+	process.stdout.write('\n\
+ +-----------------------------------------------------+\n\
+ +                     Brainfuck.js                    +\n\
+ +-----------------------------------------------------+\n\
+ \n\
+ Usage ]-------------+---------------------------------+\n\
+ bf <filename>       : Interpret file\n\
+ bf -e <string>      : Evaluate string\n\
+ \n\
+ Options ]-----------+---------------------------------+\n\
+ -d, --debug         : Output debug info\n\
+ -e, --eval <string> : Interprets string as application\n\
+ -f, --file <file>   : Set filename to interpret\n\
+ -i, input <string>  : Input string for application\n\
+ -v, --verbose       : Output additional information\n\
+                     : about application\n\
+ \n\
 ');
 }
 
@@ -16,30 +30,49 @@ var options = {
 	show_memory : false,
 	DEBUG: false,
 	DEBUG_CALLBACK: function(flags,memory){
-		
+		var line = "Step #".concat(flags.step);
+		if(Math.abs(flags.cursor_start - flags.cursor_end) > 1) {
+			line = line.concat(" ",(flags.cursor_start < flags.cursor_end ? "Skipping  to " : "Returning to "),flags.cursor_end," ");
+			var padding = line.length + 4;
+			line = line.concat(options.hint.substring(flags.cursor_end-4,flags.cursor_end+9));
+			console.log(line);
+			line = "";
+			for(var i = 0; i< padding; i++) {
+				line = line.concat(" ");
+			}
+			console.log(line.concat("^"));
+			var mem = bf.memory.map(function(num,i){ 
+					var str = num.toString(16); 
+					str = str.length == 1 ? "0".concat(str) : str;
+					return flags.pointer == i ? "[".concat(str,"]") : str;
+				}).join(' ');
+			var padding = "Memory".concat(flags.step.toString().replace(/\d/g," "),":");
+			console.log(padding.concat(mem,"\n"));
+			
+		}
 	}
 }
 
 for(var i = 0, l = argv.length; i < l ; i++) {
 	switch(argv[i]) {
-		case '-d':
-		case '--debug':
+		case '-d'       :
+		case '--debug'  :
 			options.DEBUG = true;
 			break;
-		case '-e' :
-		case '--eval' :
+		case '-e'       :
+		case '--eval'   :
 			app = argv[++i];
 			break;
-		case '-i':
-		case '--input':
+		case '-i'       :
+		case '--input'  :
 		    options['input'] = argv[++i];
 			break;
-		case '-v' :
+		case '-v'       :
 		case '--verbose':
 			options.verbose = true;
 			break;
-		case '-f':
-		case '--file':
+		case '-f'       :
+		case '--file'   :
 			appFile = argv[++i];
 		default :
 			if ( i == l-1 ) { // assume last argument it a file to read
@@ -61,6 +94,7 @@ for(var i = 0, l = argv.length; i < l ; i++) {
 }
 
 var bf = new Brainfuck(app,options);
+options.hint = bf.application;
 bf.compile();
 if(options.verbose) {
 	var mem = bf.memory.map(function(num){ 
