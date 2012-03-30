@@ -4,7 +4,7 @@ var argv      = process.argv.slice(2),
     fs        = require('fs'),
     app       = "",
 	appFile   = false,
-    Brainfuck = require('../src/Brainfuck.js');
+    Brainfuck = require('../lib/Brainfuck.js');
 if(argv.length < 1) {
 	process.stdout.write('\
  bf.js [options] filename\n\

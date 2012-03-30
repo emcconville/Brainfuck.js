@@ -17,7 +17,7 @@
 		"tap"           : "0.2.x"
 	},
 	"engine"          : "node >=0.6",
-	"main"            : "./src/Brainfuck.js",
+	"main"            : "./lib/Brainfuck.js",
 	"scripts"         : {
 		"test"          :  "node ./node_modules/tap/bin/tap.js test"
 	}
