@@ -42,6 +42,14 @@ test("Clean Code!",function(t){
   t.end();
 });
 
+test("BF Validation",function(t){
+	var app = '++[>+<-';
+	var bf = new Brainfuck(app);
+	t.notOk(bf.validate(),"Should not be valid code with missing close brace");
+	t.ok(bf.validate(app.concat(']')),"Should be valid code with matching brace");
+	t.end();
+});
+
 test("Custom BF",function(t){
 	var app = 'R>I+I+I+I+I+I+I+I+I+S[L<I+I+I+I+I+I+I+I+R>M-E]L<O.';
 	var options = {
