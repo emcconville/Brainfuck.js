@@ -2,55 +2,20 @@
 
 var argv      = process.argv.slice(2),
     fs        = require('fs'),
+    path      = require('path'),
     app       = "",
     appFile   = false,
-    Brainfuck = require('../lib/Brainfuck.js');
+    Brainfuck = require('../lib/Brainfuck.js'),
+		this_name = path.basename(process.argv[1]);
+		
 if(argv.length < 1) {
-	process.stdout.write('\n\
- +-----------------------------------------------------+\n\
- +                     Brainfuck.js                    +\n\
- +-----------------------------------------------------+\n\
- \n\
- Usage ]-------------+---------------------------------+\n\
- bf <filename>       : Interpret file\n\
- bf -e <string>      : Evaluate string\n\
- \n\
- Options ]-----------+---------------------------------+\n\
- -d, --debug         : Output debug info\n\
- -e, --eval <string> : Interprets string as application\n\
- -f, --file <file>   : Set filename to interpret\n\
- -i, input <string>  : Input string for application\n\
- -v, --verbose       : Output additional information\n\
-                     : about application\n\
- \n\
-');
+	usage();
+	process.exit(0);
 }
 
 var options = {
-	show_memory : false,
 	DEBUG: false,
-	DEBUG_CALLBACK: function(flags,memory){
-		var line = "Step #".concat(flags.step);
-		if(Math.abs(flags.cursor_start - flags.cursor_end) > 1) {
-			line = line.concat(" ",(flags.cursor_start < flags.cursor_end ? "Skipping  to " : "Returning to "),flags.cursor_end," ");
-			var padding = line.length + 4;
-			line = line.concat(options.hint.substring(flags.cursor_end-4,flags.cursor_end+9));
-			console.log(line);
-			line = "";
-			for(var i = 0; i< padding; i++) {
-				line = line.concat(" ");
-			}
-			console.log(line.concat("^"));
-			var mem = bf.memory.map(function(num,i){ 
-					var str = num.toString(16); 
-					str = str.length == 1 ? "0".concat(str) : str;
-					return flags.pointer == i ? "[".concat(str,"]") : str;
-				}).join(' ');
-			var padding = "Memory".concat(flags.step.toString().replace(/\d/g," "),":");
-			console.log(padding.concat(mem,"\n"));
-			
-		}
-	}
+	DEBUG_CALLBACK: debug_step
 }
 
 for(var i = 0, l = argv.length; i < l ; i++) {
@@ -101,12 +66,55 @@ if(options.verbose) {
 			var str = num.toString(16); 
 			return str.length == 1 ? '0'.concat(str) : str;
 		}).join(' ');
-	process.stdout.write('\n+-----------+');
-	process.stdout.write('\n Application: '.concat(bf.application));
-	process.stdout.write('\n       Debug: '.concat(options.DEBUG.toString()));
-	process.stdout.write('\n      Memory: '.concat(mem));
-	process.stdout.write('\n+-----------+');
-	process.stdout.write('\n');
+  process.stdout.write("\n".concat(
+		"\n Application: ",bf.application,
+		"\n       Debug: ",options.DEBUG.toString(),
+		"\n      Memory: ",mem,"\n"
+		));
 }
 process.stdout.write(bf.buffer.output.concat('\n'));
 process.exit();
+
+
+function usage() {
+	process.stdout.write('\n\
+usage: bf [--debug] [--verbose] [--input <string>]\n\
+          [--eval <string>] [--file <path>] [path]\n\
+\n\
+options \n\
+ -d, --debug         : Output debug info\n\
+ -e, --eval <string> : Interprets string as application\n\
+ -f, --file <file>   : Set filename to interpret\n\
+ -i, input <string>  : Input string for application\n\
+ -v, --verbose       : Output additional information\n\
+                     : about application\n\
+\n');	
+}
+
+function bail(m) {
+	process.stderr.write(m.concat("\n"));
+	process.exit(1);
+}
+
+function debug_step(flags,memory) {
+	var line = "Step #".concat(flags.step);
+	if(Math.abs(flags.cursor_start - flags.cursor_end) > 1) {
+		line = line.concat(" ",(flags.cursor_start < flags.cursor_end ? "Skipping  to " : "Returning to "),flags.cursor_end," ");
+		var padding = line.length + 4;
+		line = line.concat(options.hint.substring(flags.cursor_end-4,flags.cursor_end+9));
+		console.log(line);
+		line = "";
+		for(var i = 0; i< padding; i++) {
+			line = line.concat(" ");
+		}
+		console.log(line.concat("^"));
+		var mem = bf.memory.map(function(num,i){ 
+				var str = num.toString(16); 
+				str = str.length == 1 ? "0".concat(str) : str;
+				return flags.pointer == i ? "[".concat(str,"]") : str;
+			}).join(' ');
+		var padding = "Memory".concat(flags.step.toString().replace(/\d/g," "),":");
+		console.log(padding.concat(mem,"\n"));
+		
+	}
+}
