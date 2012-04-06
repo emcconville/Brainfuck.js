@@ -18,6 +18,7 @@
 	},
 	"engine"          : "node >=0.6",
 	"main"            : "./lib/Brainfuck.js",
+	"private"         : true,
 	"scripts"         : {
 		"test"          :  "node ./node_modules/tap/bin/tap.js test"
 	}
