@@ -9,8 +9,7 @@ var argv      = process.argv.slice(2),
 		this_name = path.basename(process.argv[1]);
 		
 if(argv.length < 1) {
-	usage();
-	process.exit(0);
+	bail(usage());
 }
 
 var options = {
@@ -47,12 +46,10 @@ for(var i = 0, l = argv.length; i < l ; i++) {
 				try { 
 					app = fs.readFileSync(appFile,'ascii');
 				} catch (err) {
-					console.error("Unable to open file: %s",appFile);
-					process.exit(1);
+					bail("Unable to open file: ".concat(appFile),1);
 				}
 			} else {
-				console.error("Unkown option flag: %s",argv[i]);
-				process.exit(1);
+				bail("Unkown option flag: ".concat(argv[i]),1);
 			}
 
 	}
@@ -72,12 +69,11 @@ if(options.verbose) {
 		"\n      Memory: ",mem,"\n"
 		));
 }
-process.stdout.write(bf.buffer.output.concat('\n'));
-process.exit();
+bail(bf.buffer.output.concat('\n'));
 
 
 function usage() {
-	process.stdout.write('\n\
+	return '\n\
 usage: bf [--debug] [--verbose] [--input <string>]\n\
           [--eval <string>] [--file <path>] [path]\n\
 \n\
@@ -88,12 +84,13 @@ options \n\
  -i, input <string>  : Input string for application\n\
  -v, --verbose       : Output additional information\n\
                      : about application\n\
-\n');	
+\n';
 }
 
-function bail(m) {
-	process.stderr.write(m.concat("\n"));
-	process.exit(1);
+function bail(m,c) {
+	c = parseInt(c);
+	process[ c>0 ? "stderr" : "stdout" ].write(m.concat("\n"));
+	process.exit(c);
 }
 
 function debug_step(flags,memory) {
@@ -101,7 +98,7 @@ function debug_step(flags,memory) {
 	if(Math.abs(flags.cursor_start - flags.cursor_end) > 1) {
 		line = line.concat(" ",(flags.cursor_start < flags.cursor_end ? "Skipping  to " : "Returning to "),flags.cursor_end," ");
 		var padding = line.length + 4;
-		line = line.concat(options.hint.substring(flags.cursor_end-4,flags.cursor_end+9));
+		line = line.concat(options.hint.substring(flags.cursor_end-4,flags.cursor_end+16));
 		console.log(line);
 		line = "";
 		for(var i = 0; i< padding; i++) {
