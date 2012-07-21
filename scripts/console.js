@@ -1,11 +1,16 @@
 #!/usr/bin/env node
 
+var Brainfuck = require('../lib/Brainfuck.js')
+/*
+// @BUILD_START@
+var Brainfuck = module.exports
+/*-*/
+
 var argv      = process.argv.slice(2),
     fs        = require('fs'),
     path      = require('path'),
     app       = "",
     appFile   = false,
-    Brainfuck = require('../lib/Brainfuck.js'),
 		this_name = path.basename(process.argv[1]);
 		
 if(argv.length < 1) {

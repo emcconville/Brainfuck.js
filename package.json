@@ -14,7 +14,8 @@
 	},
 	"dependencies"    : {},
 	"devDependencies" : {
-		"tap"           : "0.2.x"
+		"tap"           : "0.2.x",
+		"grunt"		: "0.3.x"
 	},
 	"engine"          : "node >=0.6",
 	"main"            : "./lib/Brainfuck.js",
