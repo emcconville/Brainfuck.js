@@ -24,31 +24,42 @@ bf.compile();
 
 ### CLI
 
-```
- shell~> bf 'test/example.bf
- The quick brown fox jumps over the lazy dog
-```
-
-#### CLI Usage
+A CLI extensions ships with this [node][node] library. Located in
+the *scripts* directory, *console.js* can be used to test, debug,
+and compile [bf][bf] applications.
 
 ```
-   bf [-vvv] [--test] [--input <string>] filename\n\
+   shell~> node ./scripts/console.js --file ./test/example.bf
+   The quick brown fox jumps over the lazy dog
 ```
 
-#### CLI Options
+A stand-alone executable can be built, and installed system-wide.
 
 ```
-   -f, --file <file>   : Set filename to interpret
-   -i, --input <string>: Input string for application
-   -t, --test          : Validate syntax without executing application
-   -v, --version       : Print version information
-   -vv                 : Print summary of application
-   -vvv                : Print debug output on loop iterations
+   shell~> grunt build
+   shell~> sudo install dist/bin/bf /usr/local/bin/bf
+   shell~> which bf
+   /usr/local/bin/bf
+   shell~> bf --file ./test/example.bf
+   The quick brown fox jumps over the lazy dog
+```
+
+#### CLI Usage & Options
+
+```
+   bf [-v[v[v]] [--test] [--input <string>] filename
+
+   -f, --file <file>     Set filename to interpret
+   -i, --input <string>  Input string for application
+   -t, --test            Validate syntax without executing application
+   -v, --version         Print version information
+   -vv                   Print summary of application
+   -vvv                  Print debug output on loop iterations
 ```
 
 ### API Methods
 
-#### clean( str )
+##### .clean( str )
 
 Strip out commented text from string
 
@@ -67,15 +78,15 @@ Strip out commented text from string
    +[[>++<-]-[-]] // Line comment
    ```
 
-#### compile()
+##### .compile()
 
-Interprets given bf application
+Interprets given [bf][bf] application
 
  * **returns** *string|boolean* Output of application, or
    false on failure
 
 
-#### init( application [, options] )
+##### .init( application [, options] )
 
  * **application** *string* The bf application to compile
  * **options** *object (optional)* Run-time configuration
@@ -85,7 +96,7 @@ Interprets given bf application
  * **returns** *object*
  
 
-#### merge( original, alternative )
+##### .merge( original, alternative )
 
 Updated existing, or append new, attributes to existing
 object
@@ -93,20 +104,20 @@ object
  * **original** *object* Base default item
  * **alternative** *object* New item to assimilate
 
-#### read_input_buffer()
+##### .read_input_buffer()
 
 Return a single character from input buffer
 
  * **return** *integer* Value of input char, by base 10
    order
 
-#### validate()
+##### .validate()
 
 Examine application for syntax errors.
 
  * **return** *boolean* True on valid syntax, false otherwise
 
-#### write_output_buffer( charCode )
+##### .write_output_buffer( charCode )
 
 Add char to output buffer
 
